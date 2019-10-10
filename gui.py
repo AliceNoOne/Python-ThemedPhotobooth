@@ -3,7 +3,6 @@ import cv2
 import PIL.Image, PIL.ImageTk
 import time
 import numpy as np
-#self.window.attributes("-fullscreen", True)
 
 
 class App:
@@ -13,7 +12,8 @@ class App:
         self.video_source = video_source
         self.vid = MyVideoCapture(self.video_source)
         self.window.configure(background='black')
-        
+
+        #///Seting up the layout for the tkinter grid
         #self.window.geometry('1280x720')
         self.window.attributes("-fullscreen", True)
         self.window.update()
@@ -26,11 +26,20 @@ class App:
 
         self.cols = 4
 
-        self.photo = self.imgTest()
 
+        #///Gets images and converts them for use on the buttons
+        self.backgrounds = ["yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg"]
+        self.btnBackground = []
+        for background in range(len(self.backgrounds)):
+            self.btnBackground.append(self.imgConvert(self.backgrounds[background]))
+        self.setBackground(0)
+        #self.activeBackground
+
+        i=0
         for x in range(1,3):
             for y in range(self.cols):
-                self.gridTest(x,y)
+                self.createBtnToSetBackground(x,y, i)
+                i += 1
 
         self.btn = tkinter.Button(self.window, text="SayCheese",width=30,height=2)
         self.btn.grid(column=0, row=2, rowspan=2)
@@ -43,26 +52,24 @@ class App:
 
         self.window.mainloop()
 
-    def imgTest(self):
-        cv_img = cv2.cvtColor(cv2.imread("yes.jpg"), cv2.COLOR_BGR2RGB)
+    def imgConvert(self, imageSource):
+        cv_img = cv2.cvtColor(cv2.imread(imageSource), cv2.COLOR_BGR2RGB)
         cv_img = cv2.resize(cv_img, ((int)(self.window.winfo_width()/6),(int)(self.window.winfo_height()/4)))
-        #self.cv_img = self.cv_img[412:612,412:612]
         self.height, self.width, no_channels = cv_img.shape
-
         photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(cv_img))
         
         return photo 
 
-    def gridTest(self, colNum, rowNum):
-        self.canvas = tkinter.Canvas(self.window, width=self.width, height=self.height)      
-        self.canvas.create_image(0,0,image=self.photo, anchor=tkinter.NW)
-        self.canvas.grid(column=colNum, row=rowNum, sticky=tkinter.W)
-
-    def backgroundImageSetup(self):
-        chromaImg = cv2.cvtColor(cv2.imread("yes.jpg"), cv2.COLOR_BGR2RGB)
+    def setBackground(self, index):
+        chromaImg = cv2.cvtColor(cv2.imread(self.backgrounds[index]), cv2.COLOR_BGR2RGB)
         dim = (int(self.vid.width), int(self.vid.height))
         chromaImg = cv2.resize(chromaImg, dim, interpolation=cv2.INTER_AREA)
-        return chromaImg
+        self.activeBackground = chromaImg
+
+    def createBtnToSetBackground(self, colNum, rowNum, btnID):
+        #img = self.imgConvert(self.backgrounds[btnID])
+        btn = tkinter.Button(self.window, image=self.btnBackground[btnID], command = lambda btnid = btnID: self.setBackground(btnid))
+        btn.grid(column=colNum, row=rowNum)
 
 
     def chromaKey(self, frame):
@@ -78,7 +85,7 @@ class App:
         self.mask = cv2.inRange(blrframe, self.chromaArray[0], self.chromaArray[1])
         frame[self.mask != 0] = [0, 0, 0]
 
-        img = self.backgroundImageSetup()
+        img = np.copy(self.activeBackground)
         img[self.mask == 0] = [0, 0, 0]
 
         finalImg = frame + img
@@ -117,8 +124,6 @@ class App:
     def offsetExit(self):
         self.sliderWindow.destroy()
         self.window.destroy()
-
-
 
 
 class MyVideoCapture:
