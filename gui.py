@@ -28,7 +28,10 @@ class App:
 
 
         #///Gets images and converts them for use on the buttons
-        self.backgrounds = ["yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg","yes.jpg","test/owl.jpg"]
+        self.backgrounds = ["test/bats-and-crow-under-the-full-moon.jpg","test/owl.jpg",
+                                "test/forest-spooky-background.jpg","test/owl.jpg",
+                                "test/spooky-forest-moon-background.jpg","test/owl.jpg",
+                                "yes.jpg","test/owl.jpg"]
         self.btnBackground = []
         for background in range(len(self.backgrounds)):
             self.btnBackground.append(self.imgConvert(self.backgrounds[background]))
@@ -41,7 +44,7 @@ class App:
                 self.createBtnToSetBackground(x,y, i)
                 i += 1
 
-        self.btn = tkinter.Button(self.window, text="SayCheese",width=30,height=2)
+        self.btn = tkinter.Button(self.window, text="SayCheese", width=30, height=2, command=self.takePicture)
         self.btn.grid(column=0, row=2, rowspan=2)
 
         self.chromaArray = np.array([[0,0,120], [110,230,255]])
@@ -110,6 +113,14 @@ class App:
                 else:
                     self.Offset[x][y] = tkinter.Scale(rgbHighFrame, from_=0, to_=255, orient=tkinter.HORIZONTAL)
                 self.Offset[x][y].pack(side=tkinter.LEFT)
+
+    def takePicture(self):
+        #Get a frame from the video source
+        ret, frame = self.vid.get_frame()
+
+        if ret:
+            frame = self.chromaKey(frame)
+            cv2.imwrite("frame-" + time.strftime("%d-%m-%Y %H:%M:%S") + ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
     def update(self):
         # Get a frame from the video source
