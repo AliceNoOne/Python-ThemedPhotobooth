@@ -38,11 +38,9 @@ class App:
         self.setBackground(0)
         #self.activeBackground
 
-        i=0
         for x in range(1,3):
             for y in range(self.cols):
-                self.createBtnToSetBackground(x,y, i)
-                i += 1
+                self.createBtnToSetBackground(x,y, ((x-1) + y*2))
 
         self.btn = tkinter.Button(self.window, text="SayCheese", width=30, height=2, command=self.takePicture)
         self.btn.grid(column=0, row=2, rowspan=2)
