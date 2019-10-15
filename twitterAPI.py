@@ -10,8 +10,6 @@ class postToTwitter:
         
         self.api = tweepy.API(auth) 
 
-        self.postWithImage("test/owl.jpg")
-
     def postWithImage(self, imagePath, text=""):
         imgstatus = self.api.media_upload(imagePath)
         media_id = [imgstatus.__dict__['media_id']]
